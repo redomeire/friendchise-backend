@@ -19,10 +19,15 @@ export default class Company extends BaseModel {
   @column()
   public address: string
 
+  @column()
+  public city_id: number
+
   @hasOne(() => Admin)
   public admin: HasOne<typeof Admin>
 
-  @belongsTo(() => City)
+  @belongsTo(() => City, {
+    foreignKey: 'city_id'
+  })
   public city: BelongsTo<typeof City>
 
   @column.dateTime({ autoCreate: true })

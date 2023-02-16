@@ -1,5 +1,6 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Admin from 'App/Models/Admin';
+import Company from 'App/Models/Company';
 
 export default class AdminsController {
     public async register({ request, response }: HttpContextContract){
@@ -56,4 +57,26 @@ export default class AdminsController {
         }
     }
 
+    public async createCompany({ auth, request, response }: HttpContextContract){
+        const body = request.all();
+
+        try {
+            const admin = auth.use('admin').user
+            
+            if(admin === undefined) return response.unauthorized({ status: 'fail', message: 'Unauthorized operation' })
+
+            const newCompany = new Company()
+            newCompany.name = body.name
+            newCompany.description = body.description
+            newCompany.price = body.price
+            newCompany.address = body.address
+            newCompany.city_id = body.city_id
+
+            await newCompany.save()
+
+            return response.ok({ status: 'success', data: newCompany })
+        } catch (error) {
+            return response.internalServerError({ status: 'fail', error })
+        }
+    }
 }

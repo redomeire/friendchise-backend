@@ -1,7 +1,8 @@
 import { DateTime } from 'luxon'
-import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, BelongsTo, belongsTo, column, HasOne, hasOne } from '@ioc:Adonis/Lucid/Orm'
 import User from './User'
 import Company from './Company'
+import Chat from './Chat'
 
 export default class Pembelian extends BaseModel {
   @column({ isPrimary: true })
@@ -18,6 +19,9 @@ export default class Pembelian extends BaseModel {
 
   @belongsTo(() => Company)
   public company: BelongsTo<typeof Company>
+
+  @hasOne(() => Chat)
+  public chat: HasOne<typeof Chat>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

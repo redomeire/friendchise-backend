@@ -1,11 +1,48 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import Company from 'App/Models/Company'
 
 export default class CompaniesController {
     
-    // make city controller first
-    public async create({ request }: HttpContextContract){
-        const body = request.all()
+    public async index({ auth, response }: HttpContextContract){
+        try {
+            if(!await auth.use('user').check())
+                return response.unauthorized({ status: 'fail', message: 'Unauthorized operation' })
 
-        return body
+            const companies = await Company.all()
+
+            return response.ok({ status: 'success', data: companies })
+        } catch (error) {
+            return response.internalServerError({ status: 'fail', error })
+        }
+    }
+
+    public async search({ auth, request, response }: HttpContextContract){
+        const query = request.qs();
+
+        try {
+            if(!await auth.use('user').check())
+                return response.unauthorized({ status: 'fail', error: { 0: 'unauthorized operation' } })
+
+            const searchedCompany = await Company.query().where('name', 'like', query.q)
+
+            return response.ok({ status: 'success', data: searchedCompany })
+        } catch (error) {
+            return response.internalServerError({ status: 'fail', error })
+        }
+    }
+
+    public async detail({ auth, request, response }: HttpContextContract){
+        const body = request.only(['id']);
+
+        try {
+            if(!await auth.use('user').check())
+                return response.unauthorized({ status: "fail", message: "unauthorized operation"})
+
+            const companyDetail = Company.findBy('id', body.id)
+
+            return response.ok({ status: 'success', data: companyDetail })
+        } catch (error) {
+            return response.internalServerError({ status: 'fail', error })
+        }
     }
 }

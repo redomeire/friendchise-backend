@@ -1,4 +1,6 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import Database from '@ioc:Adonis/Lucid/Database'
+import Chat from 'App/Models/Chat'
 import Company from 'App/Models/Company'
 import Pembelian from 'App/Models/Pembelian'
 
@@ -16,7 +18,11 @@ export default class PembeliansController {
 
             await newPembelian.save()
 
-            return response.ok({ status: 'success', data: newPembelian })
+            const newChat = new Chat()
+            newChat.pembelian_id = newPembelian.id
+            await newChat.save()
+
+            return response.ok({ status: 'success', transaction: newPembelian, chat: newChat })
         } catch (error) {
             return response.internalServerError({ status: 'fail', error })
         }
@@ -51,7 +57,13 @@ export default class PembeliansController {
             .where('id', query.id)
             .where('user_id', user!.id)
 
-            return response.ok({ status: 'ok', data: historyDetail })
+            const messages = await Database
+            .query()
+            .from('messages')
+            .join('chats', 'messages.chat_id', '=', 'chats.id')
+            .join('pembelians', 'chats.pembelian_id', '=', 'pembelians.id')
+
+            return response.ok({ status: 'ok', data: historyDetail, messages: messages })
         } catch (error) {
             return response.badRequest({ status: 'fail', error })
         }

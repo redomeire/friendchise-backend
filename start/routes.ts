@@ -34,10 +34,27 @@ Route.group(() => {
     }).prefix('auth')
 
     Route.group(() => {
+      Route.get('/profile', 'ProfilesController.index').middleware('auth')
+    }).prefix('user')
+
+    Route.group(() => {
       Route.post('/login', 'AdminsController.login')
       Route.post('/register', 'AdminsController.register')
       Route.post('/logout', 'AdminsController.logout').middleware('auth')
     }).prefix('admin')
+
+    Route.group(() => {
+      Route.post('/create', 'AdminsController.createCompany').middleware('auth')
+      Route.get('/search', 'CompaniesController.index').middleware('auth')
+      Route.get('/:id', 'CompaniesController.detail').middleware('auth')
+      Route.post('/save', 'UsersController.saveFranchise').middleware('auth')
+    }).prefix('company')
+
+    Route.group(() => {
+      Route.get('/all', 'PembeliansController.getHistory').middleware('auth')
+      Route.get('/detail', 'PembeliansController.historyDetail').middleware('auth')
+      Route.post('/create', 'PembeliansController.create').middleware('auth')
+    }).prefix('pembelian')
 
   }).prefix('v1')
 

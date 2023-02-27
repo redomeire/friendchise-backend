@@ -23,7 +23,10 @@ export default class CompaniesController {
             if(!await auth.use('user').check())
                 return response.unauthorized({ status: 'fail', error: { 0: 'unauthorized operation' } })
 
-            const searchedCompany = await Company.query().where('name', 'like', query.q)
+            const searchedCompany = await Company
+            .query()
+            .where('name', 'like', query.name)
+            .orWhere('city_id', query.city_id)
 
             return response.ok({ status: 'success', data: searchedCompany })
         } catch (error) {
@@ -32,13 +35,13 @@ export default class CompaniesController {
     }
 
     public async detail({ auth, request, response }: HttpContextContract){
-        const body = request.only(['id']);
+        const body = request.params();
 
         try {
             if(!await auth.use('user').check())
                 return response.unauthorized({ status: "fail", message: "unauthorized operation"})
 
-            const companyDetail = Company.findBy('id', body.id)
+            const companyDetail = await Company.findBy('id', body.id)
 
             return response.ok({ status: 'success', data: companyDetail })
         } catch (error) {

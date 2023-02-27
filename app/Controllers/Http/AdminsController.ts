@@ -46,7 +46,7 @@ export default class AdminsController {
         try {
             const foundAdmin = auth.use('admin').user
 
-            if(foundAdmin === undefined)
+            if(foundAdmin === undefined) 
                 return response.unauthorized({ status: 'fail', message: 'Unauthorized access' })
 
             await auth.use('admin').revoke()
@@ -63,7 +63,8 @@ export default class AdminsController {
         try {
             const admin = auth.use('admin').user
             
-            if(admin === undefined) return response.unauthorized({ status: 'fail', message: 'Unauthorized operation' })
+            if(admin === undefined) 
+                return response.unauthorized({ status: 'fail', message: 'Unauthorized operation' })
 
             const newCompany = new Company()
             newCompany.name = body.name

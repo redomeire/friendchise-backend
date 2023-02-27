@@ -3,14 +3,14 @@ import User from 'App/Models/User'
 
 export default class AuthController {
     public async register({ request, response }: HttpContextContract){
-        const body = request.only(['email', 'username', 'password'])
+        const body = request.only(['email','password'])
         try {
-            const foundUser = await User.findBy('username', body.username);
+            const foundUser = await User.findBy('email', body.email);
 
-            if(foundUser !== null) return response.forbidden({ status: 'fail', message: 'username or email has been used' })
+            if(foundUser !== null) 
+                return response.forbidden({ status: 'fail', message: 'username or email has been used' })
 
             const newUser = new User();
-            newUser.username = body.username
             newUser.email = body.email
             newUser.password = body.password
 
@@ -24,10 +24,10 @@ export default class AuthController {
     }
 
     public async login({ auth, request, response }: HttpContextContract){
-        const body = request.only(['username', 'password']);
+        const body = request.only(['email', 'password']);
 
         try {
-            const token = await auth.use('user').attempt(body.username, body.password)
+            const token = await auth.use('user').attempt(body.email, body.password)
             return response.ok({ status: 'success', data: token })
         } catch (error) {
             return response.internalServerError({ status: 'fail',  error})

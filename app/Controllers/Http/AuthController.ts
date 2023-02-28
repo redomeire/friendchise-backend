@@ -1,4 +1,5 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import Profile from 'App/Models/Profile';
 import User from 'App/Models/User'
 
 export default class AuthController {
@@ -13,10 +14,13 @@ export default class AuthController {
             const newUser = new User();
             newUser.email = body.email
             newUser.password = body.password
-
             await newUser.save()
+            
+            const newProfile = new Profile();
+            newProfile.user_id = newUser.id
+            await newProfile.save()
 
-            return response.ok({ status: 'success', message: 'success creating new user', data: newUser })
+            return response.ok({ status: 'success', message: 'success creating new user', data: { user: newUser, profile: newProfile } })
 
         } catch (error) {
             return response.internalServerError({ status: 'fail', error })

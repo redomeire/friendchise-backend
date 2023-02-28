@@ -1,8 +1,7 @@
 import { DateTime } from 'luxon'
-import { BaseModel, BelongsTo, belongsTo, column, HasOne, hasOne } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
 import User from './User'
 import Company from './Company'
-import Chat from './Chat'
 
 export default class Pembelian extends BaseModel {
   @column({ isPrimary: true })
@@ -14,14 +13,36 @@ export default class Pembelian extends BaseModel {
   @column()
   public company_id: number
 
-  @belongsTo(() => User)
+  @column()
+  public tipe_usaha: ['milik sendiri', 'sewa']
+
+  @column()
+  public planning_operation: ['dikelola sendiri', 'dikelola orang lain']
+
+  @column()
+  public pengalaman_usaha: boolean
+
+  @column()
+  public lokasi_usaha: string
+
+  @column()
+  public service_price: string
+ 
+  @column()
+  public total_price: string
+
+  @column()
+  public status: ['berlangsung', 'berhasil', 'gagal']
+
+  @belongsTo(() => User, {
+    foreignKey: 'user_id'
+  })
   public user: BelongsTo<typeof User>
 
-  @belongsTo(() => Company)
+  @belongsTo(() => Company, {
+    foreignKey: 'company_id'
+  })
   public company: BelongsTo<typeof Company>
-
-  @hasOne(() => Chat)
-  public chat: HasOne<typeof Chat>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

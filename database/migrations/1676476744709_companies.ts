@@ -12,7 +12,7 @@ export default class extends BaseSchema {
       table.text('description')
       table.bigInteger('price')
       table.text('address')
-      table.json('image_url')
+      table.string('image_url')
       table.string('image_thumbnail')
       table.integer('city_id').unsigned().references('cities.id').onDelete('CASCADE')
       /**

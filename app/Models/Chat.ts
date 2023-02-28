@@ -2,18 +2,28 @@ import { DateTime } from 'luxon'
 import { BaseModel, BelongsTo, belongsTo, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import Pembelian from './Pembelian'
 import Message from './Message'
+import User from './User'
+import Company from './Company'
 
 export default class Chat extends BaseModel {
   @column({ isPrimary: true })
   public id: number
 
   @column()
-  public pembelian_id: number
+  public user_id: number
 
-  @belongsTo(() => Pembelian, {
-    foreignKey: 'pembelian_id'
+  @column()
+  public company_id: number
+
+  @belongsTo(() => User, {
+    foreignKey: 'user_id'
   })
-  public pembelian: BelongsTo<typeof Pembelian>
+  public user: BelongsTo<typeof User>
+
+  @belongsTo(() => Company, {
+    foreignKey: 'company_id'
+  })
+  public company: BelongsTo<typeof Company>
 
   @hasMany(() => Message)
   public message: HasMany<typeof Message>

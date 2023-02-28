@@ -16,6 +16,9 @@ export default class Profile extends BaseModel {
   public phone_number: string
 
   @column()
+  public job: string
+
+  @column()
   public birth_date: Date
 
   @column()
@@ -23,6 +26,9 @@ export default class Profile extends BaseModel {
 
   @column()
   public user_id: number
+
+  @column()
+  public profile_img: string
 
   @belongsTo(() => User, {
     foreignKey: 'user_id'

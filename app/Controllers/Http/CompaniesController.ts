@@ -26,11 +26,11 @@ export default class CompaniesController {
             const searchedCompany = await Company
             .query()
             .where('name', 'like', query.name)
-            .orWhere('city_id', query.city_id)
+            .orWhere('city_id', query.city_id || '')
 
             return response.ok({ status: 'success', data: searchedCompany })
         } catch (error) {
-            return response.internalServerError({ status: 'fail', error })
+            return response.internalServerError({ status: 'fail', error: error.message })
         }
     }
 

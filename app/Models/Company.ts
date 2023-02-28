@@ -1,11 +1,18 @@
 import { DateTime } from 'luxon'
-import { BaseModel, BelongsTo, belongsTo, column, HasOne, hasOne } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, BelongsTo, belongsTo, column, HasMany, hasMany, HasOne, hasOne } from '@ioc:Adonis/Lucid/Orm'
 import Admin from './Admin'
 import City from './City'
+import Chat from './Chat'
 
 export default class Company extends BaseModel {
   @column({ isPrimary: true })
   public id: number
+
+  @column()
+  public outlet_name: string
+
+  @column()
+  public outlet_count: number
 
   @column()
   public name: string
@@ -22,6 +29,12 @@ export default class Company extends BaseModel {
   @column()
   public city_id: number
 
+  @column()
+  public image_url: string
+
+  @column()
+  public image_thumbnail: string
+
   @hasOne(() => Admin)
   public admin: HasOne<typeof Admin>
 
@@ -29,6 +42,9 @@ export default class Company extends BaseModel {
     foreignKey: 'city_id'
   })
   public city: BelongsTo<typeof City>
+
+  @hasMany(() => Chat)
+  public chat: HasMany<typeof Chat>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

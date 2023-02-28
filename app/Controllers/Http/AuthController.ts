@@ -4,12 +4,15 @@ import User from 'App/Models/User'
 
 export default class AuthController {
     public async register({ request, response }: HttpContextContract){
-        const body = request.only(['email','password'])
+        const body = request.only(['email','password', 'name', 'phone', 'repeat_password'])
         try {
             const foundUser = await User.findBy('email', body.email);
 
             if(foundUser !== null) 
                 return response.forbidden({ status: 'fail', message: 'username or email has been used' })
+
+            if(body.password !== body.repeat_password)
+                return response.badRequest({ status: 'fail', message: 'password and repeat password must be same' })
 
             const newUser = new User();
             newUser.email = body.email
@@ -18,6 +21,7 @@ export default class AuthController {
             
             const newProfile = new Profile();
             newProfile.user_id = newUser.id
+            newProfile.name = body.name
             await newProfile.save()
 
             return response.ok({ status: 'success', message: 'success creating new user', data: { user: newUser, profile: newProfile } })

@@ -1,8 +1,30 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import Chat from 'App/Models/Chat';
 import Message from 'App/Models/Message';
 import Ws from 'App/Services/Ws';
 
 export default class ChatsController {
+    async createChatRoom({ auth, request, response }: HttpContextContract){
+        const body = request.only(['company_id'])
+
+        try {
+            const user = auth.use('user').user
+
+            if(user === undefined)
+                return response.unauthorized({ status: 'fail', message: 'unauthorized operation' })
+
+            const newChatRoom = new Chat()
+            newChatRoom.company_id = body.company_id
+            newChatRoom.user_id = user.id
+
+            await newChatRoom.save()
+
+            return response.ok({ status: 'success', data: newChatRoom })
+        } catch (error) {
+            return response.badRequest({ status: 'fail', message: error.message })
+        }
+    }
+
     async storeMessage({ auth, request, response }: HttpContextContract) {
         const body = request.only(['chat_id', 'text_message', 'sent_by_user'])
 
@@ -39,7 +61,10 @@ export default class ChatsController {
 
         try {
             const user = auth.use('admin').user || auth.use('user').user;
-            const foundMessage = await Message.query().where('id', body.id).first();
+            const foundMessage = await Message
+            .query()
+            .where('id', body.id)
+            .first();
 
             if (user === undefined)
                 return response.unauthorized({ message: 'operation not permitted' })

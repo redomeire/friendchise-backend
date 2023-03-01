@@ -1,11 +1,9 @@
 import { DateTime } from 'luxon'
-import { BaseModel, BelongsTo, belongsTo, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
-import Pembelian from './Pembelian'
-import Message from './Message'
+import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
 import User from './User'
 import Company from './Company'
 
-export default class Chat extends BaseModel {
+export default class SavedCompany extends BaseModel {
   @column({ isPrimary: true })
   public id: number
 
@@ -24,9 +22,6 @@ export default class Chat extends BaseModel {
     foreignKey: 'company_id'
   })
   public company: BelongsTo<typeof Company>
-
-  @hasMany(() => Message)
-  public message: HasMany<typeof Message>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

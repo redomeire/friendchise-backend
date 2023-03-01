@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
-import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
+import Hash from '@ioc:Adonis/Core/Hash'
+import { BaseModel, beforeSave, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
 import Company from './Company'
 
 export default class Admin extends BaseModel {
@@ -37,4 +38,11 @@ export default class Admin extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
+
+  @beforeSave()
+  public static async hashPassword (admin: Admin) {
+    if (admin.$dirty.password) {
+      admin.password = await Hash.make(admin.password)
+    }
+  }
 }

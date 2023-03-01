@@ -9,7 +9,7 @@ export default class extends BaseSchema {
       table.string('name')
       table.string('email').notNullable().unique()
       table.string('username').notNullable().unique()
-      table.string('password').notNullable()
+      table.string('password', 180).notNullable()
       table.enu('gender', ['laki-laki', 'perempuan'])
       table.date('birth_date')
       table.integer('company_id').unsigned().references('companies.id').onDelete('CASCADE')

@@ -10,6 +10,7 @@ export default class extends BaseSchema {
       table.text('address').nullable()
       table.string('phone_number').nullable()
       table.date('birth_date').nullable()
+      table.text('bio').nullable()
       table.string('job').nullable()
       table.enu('gender', ['laki-laki', 'perempuan']).nullable()
       table.integer('user_id').unsigned().references('users.id').onDelete('CASCADE')

@@ -13,13 +13,18 @@ export default class Profile extends BaseModel {
   public address: string
 
   @column()
+  public bio: string
+
+  @column()
   public phone_number: string
 
   @column()
   public job: string
 
-  @column()
-  public birth_date: Date
+  @column.date({
+    serialize: (value) => value.toFormat('yyyy-mm-dd') 
+  })
+  public birth_date: DateTime
 
   @column()
   public gender: ['laki-laki', 'perempuan']

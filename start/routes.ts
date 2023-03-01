@@ -37,6 +37,7 @@ Route.group(() => {
       Route.get('/profile', 'ProfilesController.index').middleware('auth')
       Route.put('/profile/update', 'ProfilesController.update').middleware('auth')
       Route.put('/profile/image/update', 'ProfilesController.updateProfilePic').middleware('auth')
+      Route.delete('/profile/image/delete', 'ProfilesController.deleteProfilePic').middleware('auth')
     }).prefix('user')
     
     Route.group(() => {

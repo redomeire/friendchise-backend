@@ -1,4 +1,5 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import Database from '@ioc:Adonis/Lucid/Database'
 import SavedCompany from 'App/Models/SavedCompany'
 
 export default class UsersController {
@@ -42,6 +43,28 @@ export default class UsersController {
             await foundSavedFranchise?.delete()
 
             return response.ok({ status: 'success', data: foundSavedFranchise, message: 'success remove franchise' })
+        } catch (error) {
+            return response.badRequest({ status: 'fail', message: error.message })
+        }
+    }
+
+    public async getSavedCompanies({ auth, response }: HttpContextContract){
+        try {
+            const user = auth.use('user').user
+
+            if(user === undefined)
+                return response.unauthorized({ status: 'fail', message: 'unauthorized operation' })
+            
+            const savedCompany = await Database
+            .from('saved_companies')
+            .join('companies', 'companies.id', '=', 'saved_companies.company_id')
+            .select('companies.*')
+            .select('saved_companies.saved as saved')
+            .select('saved_companies.id as savedCompanyId')
+            .where('saved_companies.user_id', user.id)
+
+
+            return response.ok({ status: 'success', data: savedCompany })
         } catch (error) {
             return response.badRequest({ status: 'fail', message: error.message })
         }

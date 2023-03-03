@@ -59,10 +59,18 @@ export default class CompaniesController {
             if (!await auth.use('user').check())
                 return response.unauthorized({ status: "fail", message: "unauthorized operation" })
 
-            const companyDetail = await Company.findBy('id', body.id)
+            const companyDetail = await Database
+            .from('companies')
+            .leftJoin('saved_companies', 'saved_companies.company_id', '=', 'companies.id')
+            .select('companies.*')
+            .select('saved_companies.saved as saved')
+            .select('saved_companies.id as savedCompanyId')
+            .where('companies.id', body.id)
+            .first()
+
             const foundCity = await City.findBy('id', companyDetail?.city_id)
 
-            return response.ok({ status: 'success', data: { ...companyDetail?.$attributes, city_name: foundCity?.name } })
+            return response.ok({ status: 'success', data: { ...companyDetail, city_name: foundCity?.name } })
         } catch (error) {
             return response.internalServerError({ status: 'fail', error })
         }

@@ -64,17 +64,21 @@ export default class CompaniesController {
         const body = request.params();
 
         try {
-            if (!await auth.use('user').check())
+            const user = auth.use('user').user
+            if (user === undefined)
                 return response.unauthorized({ status: "fail", message: "unauthorized operation" })
 
-            const companyDetail = await Database
-                .from('companies')
-                .leftJoin('saved_companies', 'saved_companies.company_id', '=', 'companies.id')
-                .select('companies.*')
-                .select('saved_companies.saved as saved')
-                .select('saved_companies.id as savedCompanyId')
-                .where('companies.id', body.id)
-                .first()
+                const companyDetail = await Database
+                    .from('companies')
+                    .leftJoin('saved_companies', (join) => {
+                        join.on('companies.id', '=', 'saved_companies.company_id')
+                            .andOnVal('saved_companies.user_id', '=', user.id)
+                    })
+                    .select('companies.*')
+                    .select('saved_companies.saved as saved')
+                    .select('saved_companies.id as savedCompanyId')
+                    .where('companies.id', body.id)
+                    .first()
 
             const foundCity = await City.findBy('id', companyDetail?.city_id)
 

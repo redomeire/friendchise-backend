@@ -58,7 +58,12 @@ Route.group(() => {
       Route.get('/search', 'CompaniesController.search').middleware('auth')
       Route.get('/:id', 'CompaniesController.detail').middleware('auth')
       Route.post('/save', 'UsersController.saveFranchise').middleware('auth')
+      Route.delete('/remove', 'UsersController.removeFranchise').middleware('auth');
     }).prefix('company')
+
+    Route.group(() => {
+      Route.get('/all', 'CitiesController.index').middleware('auth')
+    }).prefix('city')
 
     Route.group(() => {
       Route.get('/all', 'PembeliansController.getHistory').middleware('auth')

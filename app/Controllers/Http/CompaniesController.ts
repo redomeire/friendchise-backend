@@ -22,7 +22,9 @@ export default class CompaniesController {
         const queries = request.qs();
 
         try {
-            if (!await auth.use('user').check())
+            const user = auth.use('user').user
+
+            if (user === undefined)
                 return response.unauthorized({ status: 'fail', error: { 0: 'unauthorized operation' } })
 
             let searchedCompany: Company[];
@@ -30,15 +32,21 @@ export default class CompaniesController {
             if (queries.city_id === '') {
                 searchedCompany = await Database
                     .from('companies')
-                    .leftJoin('saved_companies', 'saved_companies.company_id', '=', 'companies.id')
+                    .leftJoin('saved_companies', (join) => {
+                        join.on('companies.id', '=', 'saved_companies.company_id')
+                            .andOnVal('saved_companies.user_id', '=', user.id)
+                    })
+                    .where('companies.outlet_name', 'like', `%${queries.name}%`)
                     .select('companies.*')
                     .select('saved_companies.saved as saved')
                     .select('saved_companies.id as savedCompanyId')
-                    .where('outlet_name', 'like', `%${queries.name}%`)
             } else {
                 searchedCompany = await Database
                     .from('companies')
-                    .leftJoin('saved_companies', 'saved_companies.company_id', '=', 'companies.id')
+                    .leftJoin('saved_companies', (join) => {
+                        join.on('companies.id', '=', 'saved_companies.company_id')
+                            .andOnVal('saved_companies.user_id', '=', user.id)
+                    })
                     .select('companies.*')
                     .select('saved_companies.saved as saved')
                     .select('saved_companies.id as savedCompanyId')
@@ -60,13 +68,13 @@ export default class CompaniesController {
                 return response.unauthorized({ status: "fail", message: "unauthorized operation" })
 
             const companyDetail = await Database
-            .from('companies')
-            .leftJoin('saved_companies', 'saved_companies.company_id', '=', 'companies.id')
-            .select('companies.*')
-            .select('saved_companies.saved as saved')
-            .select('saved_companies.id as savedCompanyId')
-            .where('companies.id', body.id)
-            .first()
+                .from('companies')
+                .leftJoin('saved_companies', 'saved_companies.company_id', '=', 'companies.id')
+                .select('companies.*')
+                .select('saved_companies.saved as saved')
+                .select('saved_companies.id as savedCompanyId')
+                .where('companies.id', body.id)
+                .first()
 
             const foundCity = await City.findBy('id', companyDetail?.city_id)
 

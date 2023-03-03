@@ -13,6 +13,9 @@ export default class SavedCompany extends BaseModel {
   @column()
   public company_id: number
 
+  @column()
+  public saved: boolean
+
   @belongsTo(() => User, {
     foreignKey: 'user_id'
   })

@@ -29,6 +29,18 @@ export default class extends BaseSeeder {
       {
         name: 'Mojokerto'
       },
+      {
+        name: 'Solo'
+      },
+      {
+        name: 'Klaten'
+      },
+      {
+        name: 'Cengkareng'
+      },
+      {
+        name: 'Pulogebang'
+      },
     ])
   }
 }

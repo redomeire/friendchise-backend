@@ -19,4 +19,19 @@ export default class CitiesController {
             return response.internalServerError({ status: 'fail', error })
         }
     }
+
+    public async index({ auth, response }: HttpContextContract){
+        try {
+            const user = auth.use('user').user;
+
+            if(user === undefined)
+                return response.unauthorized({ status: 'fail', message: 'unauthorized operation' })
+
+            const cities = await City.all();
+
+            return response.ok({ status: 'success', data: cities, message: 'success get cities' })
+        } catch (error) {
+            return response.badRequest({ status: 'fail', message: error.message })
+        }
+    }
 }

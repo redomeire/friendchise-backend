@@ -4,22 +4,58 @@ import Message from 'App/Models/Message';
 import Ws from 'App/Services/Ws';
 
 export default class ChatsController {
-    async createChatRoom({ auth, request, response }: HttpContextContract){
+    async createChatRoom({ auth, request, response }: HttpContextContract) {
         const body = request.only(['company_id'])
 
         try {
             const user = auth.use('user').user
 
+            if (user === undefined)
+                return response.unauthorized({ status: 'fail', message: 'unauthorized operation' })
+
+            const foundChatRoom = await Chat
+                .query()
+                .where('company_id', body.company_id)
+                .where('user_id', user.id)
+                .first()
+
+            if (foundChatRoom === null) {
+
+                const newChatRoom = new Chat()
+                newChatRoom.company_id = body.company_id
+                newChatRoom.user_id = user.id
+
+                await newChatRoom.save()
+                // Ws.io.emit('client:room', { isOpen: true })
+                Ws.io.emit('client:room:' + newChatRoom.id, { isOpen: true })
+                return response.ok({ status: 'success', data: newChatRoom })
+            }
+
+            Ws.io.emit('client:room:' + foundChatRoom.id, { isOpen: true, id: foundChatRoom.id })
+            return response.ok({ status: 'success', data: foundChatRoom })
+
+        } catch (error) {
+            return response.badRequest({ status: 'fail', message: error.message })
+        }
+    }
+    
+    async getMessages({ auth, request, response }: HttpContextContract) {
+        const body = request.params()        
+
+        try {
+            const user = auth.use('user').user;
+
             if(user === undefined)
                 return response.unauthorized({ status: 'fail', message: 'unauthorized operation' })
 
-            const newChatRoom = new Chat()
-            newChatRoom.company_id = body.company_id
-            newChatRoom.user_id = user.id
+            const foundMessages = await Message
+            .query()
+            .join('chats', 'chats.id', '=', 'messages.chat_id')
+            .join('users', 'chats.user_id', '=', 'users.id')
+            .where('chat_id', body.chat_id)
+            .where('users.id', user.id)
 
-            await newChatRoom.save()
-
-            return response.ok({ status: 'success', data: newChatRoom })
+            return response.ok({ status: 'success', data: foundMessages })
         } catch (error) {
             return response.badRequest({ status: 'fail', message: error.message })
         }
@@ -47,7 +83,7 @@ export default class ChatsController {
                 id: newMessage.id,
                 chat_id: body.chat_id,
                 text_message: body.text_message,
-                sent_by_partner: body.sent_by_user,
+                sent_by_user: body.sent_by_user,
                 created_at: newMessage.createdAt
             })
             return { status: 'success', code: 200, data: newMessage }
@@ -56,15 +92,16 @@ export default class ChatsController {
         }
     }
 
+
     async deleteMessage({ auth, request, response }: HttpContextContract) {
         const body = request.only(['id']);
 
         try {
             const user = auth.use('admin').user || auth.use('user').user;
             const foundMessage = await Message
-            .query()
-            .where('id', body.id)
-            .first();
+                .query()
+                .where('id', body.id)
+                .first();
 
             if (user === undefined)
                 return response.unauthorized({ message: 'operation not permitted' })

@@ -41,6 +41,7 @@ Route.group(() => {
     }).prefix('user')
     
     Route.group(() => {
+      Route.get('/chatroom/getAll/:chat_id', 'ChatsController.getMessages').middleware('auth')
       Route.post('/chatroom/create', 'ChatsController.createChatRoom').middleware('auth')
       Route.post('/chatroom/store', 'ChatsController.storeMessage').middleware('auth')
       Route.delete('/message/delete', 'ChatsController.deleteMessage').middleware('auth')

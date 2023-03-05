@@ -31,6 +31,12 @@ export default class PembeliansController {
 
             await newPembelian.save()
 
+            const foundFranchise = await Company.findBy('id', body.company_id)
+
+            foundFranchise!.outlet_count -= 1
+
+            await foundFranchise?.save()
+
             return response.ok({ status: 'success', data: newPembelian })
         } catch (error) {
             return response.internalServerError({ status: 'fail', error })
@@ -38,17 +44,28 @@ export default class PembeliansController {
     }
 
     public async getHistory({ auth, response }: HttpContextContract) {
-        try {
-            if (!await auth.use('user').check())
-                return response.unauthorized({ status: 'fail', message: 'unauthorized operation' })
 
+        try {
             const user = auth.use('user').user
 
-            const riwayats = await Company.findBy('user_id', user!.id)
+            if (user === undefined)
+                return response.unauthorized({ status: 'fail', message: 'unauthorized operation' })
+
+            let riwayats: Pembelian[];
+
+            riwayats = await Database
+                .from('pembelians')
+                .join('companies', 'companies.id', '=', 'pembelians.company_id')
+                .join('users', 'users.id', '=', 'pembelians.user_id')
+                .select('pembelians.*')
+                .select('companies.image_thumbnail')
+                .select('companies.outlet_name')
+                .select('companies.name')
+                .where('users.id', user.id)
 
             return response.ok({ status: 'success', data: riwayats })
         } catch (error) {
-            return response.badRequest({ status: 'fail', error })
+            return response.badRequest({ status: 'fail', message: error.message })
         }
     }
 

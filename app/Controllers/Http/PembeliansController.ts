@@ -99,7 +99,7 @@ export default class PembeliansController {
         const body = request.only(['status', 'id'])
 
         try {
-            const user = auth.use('admin').user
+            const user = auth.use('user').user
 
             if (user === undefined)
                 return response.unauthorized({ status: 'fail', message: 'unauthorized operation' })
@@ -107,7 +107,7 @@ export default class PembeliansController {
             const foundPembelian = await Pembelian
                 .query()
                 .where('id', body.id)
-                .where('company_id', user.company_id)
+                .where('user_id', user.id)
                 .first()
 
             if (foundPembelian === null)
